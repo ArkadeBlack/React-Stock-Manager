@@ -1,0 +1,492 @@
+/* Variables CSS para Settings */
+:root, body.light {
+    --settings-primary: #000000;
+    --settings-secondary: #6b7280;
+    --settings-accent: #f59e0b;
+    --settings-success: #10b981;
+    --settings-warning: #f59e0b;
+    --settings-danger: #ef4444;
+    --settings-info: #3b82f6;
+    --settings-background: #f9fafb;
+    --settings-surface: #ffffff;
+    --settings-text-primary: #111827;
+    --settings-text-secondary: #6b7280;
+    --settings-border: #e5e7eb;
+    --settings-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --settings-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --settings-radius: 8px;
+    --settings-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.dark {
+    --settings-primary: #ffffff;
+    --settings-secondary: #9ca3af;
+    --settings-accent: #fb923c; /* Naranja más brillante para destacar */
+    --settings-success: #34d399;
+    --settings-warning: #fbb_f24;
+    --settings-danger: #f87171;
+    --settings-info: #60a5fa;
+    --settings-background: #111827; /* Azul oscuro casi negro */
+    --settings-surface: #1f2937; /* Azul-gris oscuro */
+    --settings-text-primary: #f9fafb; /* Blanco suave */
+    --settings-text-secondary: #d1d5db; /* Gris claro */
+    --settings-border: #374151; /* Gris más oscuro para bordes */
+    --settings-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.2);
+    --settings-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+}
+
+/* Contenedor principal */
+.settings-container {
+    padding: 2rem;
+    background: var(--settings-background);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header de configuraciones */
+.settings-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.settings-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--settings-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.settings-header p {
+    color: var(--settings-text-secondary);
+    font-size: 1.125rem;
+}
+
+/* Tabs de navegación */
+.settings-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--settings-border);
+    padding-bottom: 1rem;
+}
+
+.tab-button {
+    padding: 0.75rem 1.5rem;
+    background: var(--settings-surface);
+    color: var(--settings-text-secondary);
+    border: 1px solid var(--settings-border);
+    border-radius: var(--settings-radius);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: var(--settings-transition);
+}
+
+.tab-button:hover {
+    border-color: var(--settings-accent);
+    color: var(--settings-accent);
+    transform: translateY(-1px);
+}
+
+.tab-button.active {
+    background: var(--settings-accent);
+    border-color: var(--settings-accent);
+    color: white;
+    box-shadow: var(--settings-shadow);
+}
+
+/* Contenido de configuraciones */
+.settings-content {
+    background: var(--settings-surface);
+    border-radius: var(--settings-radius);
+    padding: 2rem;
+    box-shadow: var(--settings-shadow);
+    margin-bottom: 2rem;
+    border: 1px solid var(--settings-border);
+}
+
+.settings-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--settings-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.settings-description {
+    color: var(--settings-text-secondary);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+}
+
+/* Formulario de configuraciones */
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--settings-text-primary);
+    font-size: 0.875rem;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="number"],
+.form-group select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--settings-border);
+    border-radius: var(--settings-radius);
+    font-size: 0.875rem;
+    transition: var(--settings-transition);
+    background: var(--white);
+    color: var(--settings-text-primary);
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="number"]:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--settings-accent);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.form-group input[disabled] {
+    background: #f3f4f6;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+body.dark .form-group input[disabled] {
+    background: #374151;
+    color: #6b7280;
+}
+
+.form-help {
+    font-size: 0.75rem;
+    color: var(--settings-text-secondary);
+    margin-top: 0.25rem;
+}
+
+/* Grupos de checkbox */
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 1px solid var(--settings-border);
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: var(--settings-accent);
+}
+
+/* Grupos de notificaciones */
+.notification-group {
+    background: var(--settings-background);
+    border-radius: var(--settings-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--settings-border);
+}
+
+.notification-group h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--settings-text-primary);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--settings-border);
+}
+
+/* Sección de importar/exportar */
+.import-export-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.export-section,
+.import-section {
+    background: var(--settings-background);
+    border-radius: var(--settings-radius);
+    padding: 1.5rem;
+    border: 1px solid var(--settings-border);
+}
+
+.export-section h3,
+.import-section h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--settings-text-primary);
+    margin-bottom: 0.75rem;
+}
+
+.export-section p,
+.import-section p {
+    color: var(--settings-text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.btn-export {
+    padding: 0.75rem 1.5rem;
+    background: var(--settings-primary);
+    color: white;
+    border: none;
+    border-radius: var(--settings-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--settings-transition);
+    width: 100%;
+}
+
+.btn-export:hover {
+    background: #1f1f1f;
+    transform: translateY(-1px);
+    box-shadow: var(--settings-shadow);
+}
+
+.file-input-label {
+    display: block;
+    padding: 0.75rem 1.5rem;
+    background: var(--settings-primary);
+    color: white;
+    border-radius: var(--settings-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--settings-transition);
+    text-align: center;
+}
+
+.file-input-label:hover {
+    background: #1f1f1f;
+    transform: translateY(-1px);
+    box-shadow: var(--settings-shadow);
+}
+
+.file-input {
+    display: none;
+}
+
+.import-note {
+    margin-top: 1rem !important;
+    font-style: italic;
+    color: var(--settings-text-secondary);
+}
+
+/* Botones de acción */
+.settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.btn-cancel,
+.btn-save {
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--settings-radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--settings-transition);
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--settings-text-primary);
+    border: 1px solid var(--settings-border);
+}
+
+.btn-cancel:hover {
+    background: #f3f4f6;
+}
+
+body.dark .btn-cancel:hover {
+    background: #374151;
+}
+
+.btn-save {
+    background: var(--settings-primary);
+    color: var(--settings-background);
+    border: none;
+}
+
+.btn-save:hover {
+    background: #1f1f1f;
+    transform: translateY(-1px);
+    box-shadow: var(--settings-shadow);
+}
+
+body.dark .btn-save {
+    background: var(--settings-accent);
+    color: var(--settings-text-primary);
+}
+
+body.dark .btn-save:hover {
+    background: #f59e0b;
+}
+
+.btn-save:disabled {
+    background: var(--settings-secondary);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Mensaje de guardado */
+.save-message {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    padding: 1rem 1.5rem;
+    border-radius: var(--settings-radius);
+    font-weight: 500;
+    color: white;
+    box-shadow: var(--settings-shadow-lg);
+    animation: slideIn 0.3s ease-out forwards;
+    z-index: 1000;
+}
+
+.save-message.success {
+    background: var(--settings-success);
+}
+
+.save-message.error {
+    background: var(--settings-danger);
+}
+
+.save-message.info {
+    background: var(--settings-info);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 1rem;
+    }
+    
+    .settings-tabs {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+    }
+    
+    .tab-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+    
+    .settings-content {
+        padding: 1.5rem;
+    }
+    
+    .import-export-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .settings-actions {
+        padding: 1.5rem;
+        border-top: 1px solid var(--settings-border);
+        background-color: var(--settings-background);
+    }
+
+    .save-message {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        text-align: center;
+    }
+}
+
+/* Zona de Peligro */
+.danger-zone {
+    margin-top: 3rem;
+    padding: 2rem;
+    border: 2px dashed var(--settings-danger);
+    border-radius: var(--settings-radius);
+    background-color: rgba(239, 68, 68, 0.05);
+    text-align: center;
+}
+
+.danger-zone h3 {
+    color: var(--settings-danger);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
+.danger-zone p {
+    color: var(--settings-text-secondary);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-danger {
+    background-color: var(--settings-danger);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--settings-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--settings-transition);
+}
+
+.btn-danger:hover {
+    background-color: #d92c2c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+}
+
+/* Mejoras de accesibilidad */
+.tab-button:focus,
+.btn-export:focus,
+.file-input-label:focus,
+.btn-cancel:focus,
+.btn-save:focus {
+    outline: 2px solid var(--settings-accent);
+    outline-offset: 2px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

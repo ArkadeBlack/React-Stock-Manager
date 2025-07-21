@@ -1,0 +1,20 @@
+# Tech Stack:
+# - React 19 con Vite
+# - React Router DOM para el enrutamiento
+# - CSS para estilos (con archivos .css por componente)
+# - ESLint para el linting de código
+
+# Project Scripts:
+# - `npm run dev`: Inicia el servidor de desarrollo con Vite.
+# - `npm run build`: Compila la aplicación para producción.
+# - `npm run lint`: Ejecuta ESLint para analizar el código en busca de errores.
+# - `npm run preview`: Sirve la build de producción localmente para previsualizarla.
+
+# Key Libraries:
+# - `react-router-dom`: Para manejar las rutas de la aplicación.
+# - `date-fns` y `date-fns-tz`: Para el manejo de fechas y zonas horarias.
+
+# Coding Style:
+# - Seguir las reglas definidas en la configuración de ESLint (`eslint.config.js`).
+# - Mantener la estructura de componentes con su propio archivo de estilos (ej: Componente.jsx y Componente.css).
+# - Utilizar ES Modules (`import`/`export`).
