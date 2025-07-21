@@ -6,6 +6,7 @@ import { auth } from '../firebase';
 import { signInWithPopup } from 'firebase/auth';
 import { googleProvider, githubProvider, microsoftProvider } from '../firebase';
 import './Login.css';
+import kitty from '../assets/kitty.png';
 
 const Login = () => {
     const { t } = useLanguage();
