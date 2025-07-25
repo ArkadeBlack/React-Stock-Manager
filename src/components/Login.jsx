@@ -96,7 +96,7 @@ const Login = () => {
                 <button className="close-button" onClick={() => navigate('/inicio')}>×</button>
                 
                 <header className="login-header">
-                    <img src="/src/assets/kitty.png" alt={t('login.logoAlt')} className="login-logo" />
+                    <img src={kitty} alt={t('login.logoAlt')} className="login-logo" />
                     <h1>{t('login.mainTitle')}</h1>
                 </header>
 

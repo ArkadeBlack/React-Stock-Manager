@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
 import './Dashboard.css';
 import { useStock } from '../context/StockContext.jsx';
 import { useLanguage } from '../context/LanguageContext';
+import kitty from '../assets/kitty.png';
 
 // Importar los componentes
 import Inventory from './Inventory';
@@ -248,7 +249,7 @@ const Dashboard = () => {
             <header className="top-navbar">
                 <div className="navbar-left">
                     <div className="logo-section">
-                        <img src="/src/assets/kitty.png" alt={t('inicio.logoAlt')} className="sidebar-logo" />
+                        <img src={kitty} alt={t('inicio.logoAlt')} className="sidebar-logo" />
                         <div className="logo-text">
                             <h2>{t('inicio.mainTitle')}</h2>
                             <p>{settings.general.companyName}</p>
@@ -295,7 +296,13 @@ const Dashboard = () => {
             <nav className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
                 {/* Navegación para móvil */}
                 <div className="nav-menu-mobile">
-                    {/* ... (copia los botones de nav-menu aquí si quieres un menú móvil separado) ... */}
+                    <NavLink to="/dashboard" end className="nav-item" onClick={() => setIsMenuOpen(false)}>📊 {t('general.dashboard')}</NavLink>
+                    <NavLink to="/dashboard/inventory" className="nav-item" onClick={() => setIsMenuOpen(false)}>📋 {t('general.inventory')}</NavLink>
+                    <NavLink to="/dashboard/products" className="nav-item" onClick={() => setIsMenuOpen(false)}>📦 {t('general.products')}</NavLink>
+                    <NavLink to="/dashboard/orders" className="nav-item" onClick={() => setIsMenuOpen(false)}>🛒 {t('general.orders')}</NavLink>
+                    <NavLink to="/dashboard/suppliers" className="nav-item" onClick={() => setIsMenuOpen(false)}>🏢 {t('general.suppliers')}</NavLink>
+                    <NavLink to="/dashboard/reports" className="nav-item" onClick={() => setIsMenuOpen(false)}>📈 {t('general.reports')}</NavLink>
+                    <NavLink to="/dashboard/settings" className="nav-item" onClick={() => setIsMenuOpen(false)}>⚙️ {t('general.settings')}</NavLink>
                 </div>
             </nav>
 

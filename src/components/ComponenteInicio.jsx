@@ -1,6 +1,7 @@
 import { Link, Navigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useAppContext } from '../context/AppProvider';
+import kitty from '../assets/kitty.png';
 import './ComponenteInicio.css';
 
 const ComponenteInicio = () => {
@@ -17,7 +18,7 @@ const ComponenteInicio = () => {
             {/* Header */}
             <header className="header">
                 <div className="logo">
-                    <img src="/src/assets/kitty.png" alt={t('inicio.logoAlt')} className="logo-icon" />
+                    <img src={kitty} alt={t('inicio.logoAlt')} className="logo-icon" />
                     <h1>{t('inicio.mainTitle')}</h1>
                 </div>
                 <div className="header-right">
@@ -46,7 +47,7 @@ const ComponenteInicio = () => {
                         <Link to="/login" className="btn-promotion">{t('inicio.promoButton')}</Link>
                     </div>
                     <div className="promotion-image">
-                        <img src="/src/assets/kitty.png" alt={t('inicio.promoAlt')} className="promotion-img" />
+                        <img src={kitty} alt={t('inicio.promoAlt')} className="promotion-img" />
                     </div>
                 </div>
             </section>
