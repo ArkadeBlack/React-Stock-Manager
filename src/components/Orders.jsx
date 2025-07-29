@@ -416,25 +416,25 @@ const Orders = () => {
                         <tbody>
                             {filteredOrders.map(order => (
                                 <tr key={order.id}>
-                                    <td className="order-id">#{order.id}</td>
-                                    <td>
+                                    <td data-label={t('orders.table.id')} className="order-id">#{order.id}</td>
+                                    <td data-label={t('orders.table.type')}>
                                         <span className={`type-badge ${order.type}`}>
                                             {order.type === 'inbound' ? t('orders.inbound') : t('orders.outbound')}
                                         </span>
                                     </td>
-                                    <td className="customer-info">
+                                    <td data-label={t('orders.table.customer')} className="customer-info">
                                         <div>{order.customerName || 'N/A'}</div>
                                         {order.customerEmail && (
                                             <div className="customer-email">{order.customerEmail}</div>
                                         )}
                                     </td>
-                                    <td className="products-count">
+                                    <td data-label={t('orders.table.products')} className="products-count">
                                         {order.items?.length || 0} {t('orders.table.productsCount')}
                                     </td>
-                                    <td className="order-total">
+                                    <td data-label={t('orders.table.total')} className="order-total">
                                         {settings.general.currency} {(order.totalAmount || 0).toFixed(2)}
                                     </td>
-                                    <td>
+                                    <td data-label={t('orders.table.status')}>
                                         <select
                                             value={order.status}
                                             onChange={(e) => handleStatusChange(order.id, e.target.value)}
@@ -445,14 +445,14 @@ const Orders = () => {
                                             <option value="cancelled">{t('orders.statuses.cancelled')}</option>
                                         </select>
                                     </td>
-                                    <td>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                    <td>
+                                    <td data-label={t('orders.table.date')}>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                    <td data-label={t('orders.table.delivery')}>
                                         {order.expectedDelivery 
                                             ? new Date(order.expectedDelivery).toLocaleDateString()
                                             : 'N/A'
                                         }
                                     </td>
-                                    <td>
+                                    <td data-label={t('orders.table.actions')}>
                                         <div className="action-buttons">
                                             <button 
                                                 className="btn-edit"
@@ -598,7 +598,7 @@ const Orders = () => {
                                     {orderItems.map(item => (
                                         <div key={item.id} className="order-item">
                                             <div className="item-row">
-                                                <div className="item-product">
+                                                <div className="item-product" data-label={t('orders.form.product')}>
                                                     <select
                                                         value={item.productId}
                                                         onChange={(e) => updateOrderItem(item.id, 'productId', e.target.value)}
@@ -616,7 +616,7 @@ const Orders = () => {
                                                     </select>
                                                 </div>
                                                 
-                                                <div className="item-quantity">
+                                                <div className="item-quantity" data-label={t('orders.form.quantityPlaceholder')}>
                                                     <input
                                                         type="number"
                                                         value={item.quantity}
@@ -627,7 +627,7 @@ const Orders = () => {
                                                     />
                                                 </div>
                                                 
-                                                <div className="item-price">
+                                                <div className="item-price" data-label={t('orders.form.pricePlaceholder')}>
                                                     <input
                                                         type="number"
                                                         value={item.unitPrice}
@@ -639,7 +639,7 @@ const Orders = () => {
                                                     />
                                                 </div>
                                                 
-                                                <div className="item-total">
+                                                <div className="item-total" data-label={t('orders.form.total')}>
                                                     {settings.general.currency} {(item.quantity * item.unitPrice).toFixed(2)}
                                                 </div>
                                                 

@@ -280,3 +280,46 @@
     font-size: 20px;
     color: #6b7280;
 }
+
+@media (max-width: 480px) {
+    .login-modal {
+        padding: 20px;
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+
+    .login-header h1 {
+        font-size: 22px;
+    }
+
+    .login-logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .auth-tab {
+        padding: 8px 15px;
+        font-size: 15px;
+    }
+
+    .form-group input {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .btn-login {
+        padding: 12px;
+        font-size: 15px;
+        height: 44px;
+    }
+
+    .social-btn {
+        width: 45px;
+        height: 45px;
+    }
+
+    .social-btn svg {
+        width: 22px;
+        height: 22px;
+    }
+}

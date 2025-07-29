@@ -280,20 +280,123 @@ export const StockProvider = ({ children }) => {
         await batch.commit();
     };
 
-    const updateOrder = async (orderId, updatedData) => {
-        const orderRef = doc(db, "orders", orderId);
-        await updateDoc(orderRef, {
-            ...updatedData,
-            updatedAt: serverTimestamp()
-        });
-        addActivity('order', 'activity.order.updated', { id: orderId });
-    };
+   const updateOrder = async (orderId, updatedFields) => {
+    if (!user) return;
+    const batch = writeBatch(db);
+    const orderRef = doc(db, "orders", orderId);
 
-    const deleteOrder = async (orderId) => {
-        const orderRef = doc(db, "orders", orderId);
-        await deleteDoc(orderRef);
-        addActivity('order', 'activity.order.deleted', { id: orderId });
-    };
+    const orderDoc = await getDoc(orderRef);
+    if (!orderDoc.exists()) return;
+
+    const orderData = orderDoc.data();
+    const prevStatus = orderData.status;
+    const newStatus = updatedFields.status || prevStatus;
+    const type = orderData.type;
+
+    const orderItems = orderData.items || [];
+
+    const shouldApplyStockChange =
+        prevStatus !== 'completed' && newStatus === 'completed';
+
+    const shouldRevertStockChange =
+        prevStatus === 'completed' && newStatus !== 'completed';
+
+    for (const item of orderItems) {
+        const inventoryQuery = query(
+            collection(db, "inventory"),
+            where("productId", "==", item.productId),
+            where("userId", "==", user.uid)
+        );
+        const inventorySnapshot = await getDocs(inventoryQuery);
+
+        if (inventorySnapshot.empty) continue;
+
+        const inventoryDoc = inventorySnapshot.docs[0];
+        const inventoryRef = doc(db, "inventory", inventoryDoc.id);
+        const inventoryData = inventoryDoc.data();
+        const currentStock = inventoryData.currentStock;
+        const reservedStock = inventoryData.reservedStock || 0;
+
+        let newStock = currentStock;
+        let stockChange = 0;
+
+        if (shouldApplyStockChange) {
+            stockChange = type === 'outbound' ? -item.quantity : item.quantity;
+        } else if (shouldRevertStockChange) {
+            stockChange = type === 'outbound' ? item.quantity : -item.quantity;
+        }
+
+        newStock += stockChange;
+        const newAvailableStock = newStock - reservedStock;
+
+        batch.update(inventoryRef, {
+            currentStock: newStock,
+            availableStock: newAvailableStock,
+            lastMovement: serverTimestamp(),
+        });
+    }
+
+    batch.update(orderRef, {
+        ...updatedFields,
+        updatedAt: serverTimestamp(),
+    });
+
+    addActivity("order", "activity.order.updated", { id: orderId });
+
+    await batch.commit();
+};
+
+
+   const deleteOrder = async (orderId) => {
+    if (!user) return;
+    const batch = writeBatch(db);
+    const orderRef = doc(db, "orders", orderId);
+
+    const orderDoc = await getDoc(orderRef);
+    if (!orderDoc.exists()) return;
+
+    const orderData = orderDoc.data();
+    const orderItems = orderData.items || [];
+    const type = orderData.type;
+    const status = orderData.status;
+
+    // Solo revertir si fue completado
+    if (status === 'completed') {
+        for (const item of orderItems) {
+            const inventoryQuery = query(
+                collection(db, "inventory"),
+                where("productId", "==", item.productId),
+                where("userId", "==", user.uid)
+            );
+            const inventorySnapshot = await getDocs(inventoryQuery);
+
+            if (inventorySnapshot.empty) continue;
+
+            const inventoryDoc = inventorySnapshot.docs[0];
+            const inventoryRef = doc(db, "inventory", inventoryDoc.id);
+            const inventoryData = inventoryDoc.data();
+            const currentStock = inventoryData.currentStock;
+            const reservedStock = inventoryData.reservedStock || 0;
+
+            const stockChange = type === 'outbound' ? item.quantity : -item.quantity;
+            const newStock = currentStock + stockChange;
+            const newAvailableStock = newStock - reservedStock;
+
+            batch.update(inventoryRef, {
+                currentStock: newStock,
+                availableStock: newAvailableStock,
+                lastMovement: serverTimestamp(),
+            });
+        }
+    }
+
+    batch.delete(orderRef);
+    addActivity('order', 'activity.order.deleted', { id: orderId });
+
+    await batch.commit();
+};
+
+
 
     // ===== FUNCIONES PARA PROVEEDORES =====
     const addSupplier = async (supplierData) => {
@@ -326,7 +429,7 @@ export const StockProvider = ({ children }) => {
     };
 
     // ===== FUNCIONES PARA INVENTARIO =====
-    const updateStock = async (productId, updatedData) => {
+    const updateStock = async (productId, updatedData, adjustmentDetails = {}) => {
         if (!user) return;
 
         const inventoryQuery = query(
@@ -336,22 +439,24 @@ export const StockProvider = ({ children }) => {
         );
         const inventorySnapshot = await getDocs(inventoryQuery);
 
+        const product = getProductById(productId);
+        const productName = product ? product.name : 'Producto Desconocido';
+
         if (inventorySnapshot.empty) {
-            // Autocorrección: si no existe inventario, se crea uno nuevo.
             console.warn(`No se encontró inventario para el producto ${productId}. Creando uno nuevo.`);
             const newInventoryRef = doc(collection(db, "inventory"));
             
             const newStock = updatedData.currentStock !== undefined ? updatedData.currentStock : 0;
-            const reservedStock = 0; // No hay stock reservado en un producto nuevo
+            const reservedStock = 0;
             const availableStock = newStock - reservedStock;
 
             const newInventoryData = {
                 productId: productId,
                 userId: user.uid,
                 currentStock: newStock,
-                minStock: 5, // Valor predeterminado
-                maxStock: 100, // Valor predeterminado
-                location: 'N/A', // Valor predeterminado
+                minStock: 5,
+                maxStock: 100,
+                location: 'N/A',
                 reservedStock: reservedStock,
                 availableStock: availableStock,
                 lastMovement: serverTimestamp(),
@@ -359,18 +464,29 @@ export const StockProvider = ({ children }) => {
             };
 
             await setDoc(newInventoryRef, newInventoryData);
-            const product = getProductById(productId);
-            if (product) {
-                addActivity('stock', 'activity.stock.created', { name: product.name });
-            }
+            addActivity('stock', 'activity.stock.created', { name: productName });
+
+            // Registrar movimiento de stock
+            await addDoc(collection(db, "stockMovements"), {
+                userId: user.uid,
+                productId: productId,
+                productName: productName,
+                type: adjustmentDetails.type || 'initial',
+                change: newStock, // En este caso, el cambio es el stock inicial
+                newStock: newStock,
+                reason: adjustmentDetails.reason || 'Creación inicial de inventario',
+                timestamp: serverTimestamp()
+            });
 
         } else {
-            // Si existe, se actualiza como antes.
             const inventoryDoc = inventorySnapshot.docs[0];
             const inventoryRef = doc(db, "inventory", inventoryDoc.id);
             const currentInventoryData = inventoryDoc.data();
 
             const dataToUpdate = { ...updatedData };
+            const oldStock = currentInventoryData.currentStock;
+            const newStock = dataToUpdate.currentStock;
+            const stockChange = newStock - oldStock;
 
             if (dataToUpdate.currentStock !== undefined) {
                 const reservedStock = currentInventoryData.reservedStock || 0;
@@ -381,10 +497,20 @@ export const StockProvider = ({ children }) => {
                 ...dataToUpdate,
                 lastUpdated: serverTimestamp(),
             });
-            const product = getProductById(productId);
-            if (product) {
-                addActivity('stock', 'activity.stock.updated', { name: product.name });
-            }
+            addActivity('stock', 'activity.stock.updated', { name: productName });
+
+            // Registrar movimiento de stock
+            await addDoc(collection(db, "stockMovements"), {
+                userId: user.uid,
+                productId: productId,
+                productName: productName,
+                type: adjustmentDetails.type || 'manual_adjustment',
+                change: stockChange,
+                oldStock: oldStock,
+                newStock: newStock,
+                reason: adjustmentDetails.reason || 'Ajuste manual',
+                timestamp: serverTimestamp()
+            });
         }
     };
 

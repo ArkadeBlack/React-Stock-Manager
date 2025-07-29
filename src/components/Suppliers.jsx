@@ -335,7 +335,7 @@ const Suppliers = () => { // Quitar user de las props
                             <tbody>
                                 {filteredSuppliers.map(supplier => (
                                     <tr key={supplier.id}>
-                                        <td>
+                                        <td data-label={t('suppliers.table.supplier')}>
                                             <div className="supplier-info">
                                                 <div className="supplier-name">{supplier.name}</div>
                                                 {supplier.category && (
@@ -343,22 +343,22 @@ const Suppliers = () => { // Quitar user de las props
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{supplier.contact || 'N/A'}</td>
-                                        <td>
+                                        <td data-label={t('suppliers.table.contact')}>{supplier.contact || 'N/A'}</td>
+                                        <td data-label={t('suppliers.table.email')}>
                                             {supplier.email ? (
                                                 <a href={`mailto:${supplier.email}`} className="email-link">
                                                     {supplier.email}
                                                 </a>
                                             ) : 'N/A'}
                                         </td>
-                                        <td>
+                                        <td data-label={t('suppliers.table.phone')}>
                                             {supplier.phone ? (
                                                 <a href={`tel:${supplier.phone}`} className="phone-link">
                                                     {supplier.phone}
                                                 </a>
                                             ) : 'N/A'}
                                         </td>
-                                        <td>
+                                        <td data-label={t('suppliers.table.location')}>
                                             <div className="location-info">
                                                 {supplier.city && <div>{supplier.city}</div>}
                                                 {supplier.country && (
@@ -366,11 +366,11 @@ const Suppliers = () => { // Quitar user de las props
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="products-count">
+                                        <td data-label={t('suppliers.table.products')} className="products-count">
                                             {getProductsBySupplier(supplier.name).length}
                                         </td>
-                                        <td>{t('suppliers.days', { count: supplier.paymentTerms || 30 })}</td>
-                                        <td>
+                                        <td data-label={t('suppliers.table.terms')}>{t('suppliers.days', { count: supplier.paymentTerms || 30 })}</td>
+                                        <td data-label={t('suppliers.table.status')}>
                                             <select
                                                 value={supplier.status || 'active'}
                                                 onChange={(e) => handleStatusChange(supplier.id, e.target.value)}
@@ -381,7 +381,7 @@ const Suppliers = () => { // Quitar user de las props
                                                 <option value="pending">{t('suppliers.statuses.pending')}</option>
                                             </select>
                                         </td>
-                                        <td>
+                                        <td data-label={t('suppliers.table.actions')}>
                                             <div className="action-buttons">
                                                 <button 
                                                     className="btn-edit"

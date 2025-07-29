@@ -450,7 +450,7 @@ const Settings = () => {
                         id="email"
                         name="email"
                         value={userSettings.email}
-                        onChange={handleUserChange}
+                        disabled={true}
                     />
                 </div>
 
@@ -478,7 +478,6 @@ const Settings = () => {
                     >
                         <option value="light">{t('settings.themes.light')}</option>
                         <option value="dark">{t('settings.themes.dark')}</option>
-                        <option value="system">{t('settings.themes.system')}</option>
                     </select>
                 </div>
 
@@ -540,6 +539,7 @@ const Settings = () => {
                     <button 
                         className="btn-export"
                         onClick={handleExportSettings}
+                        disabled={true}
                     >
                         {t('settings.importExport.exportSettings')}
                     </button>
@@ -557,6 +557,7 @@ const Settings = () => {
                             accept=".json"
                             onChange={handleImportSettings}
                             className="file-input"
+                            disabled={true}
                         />
                     </label>
                     <p className="import-note">

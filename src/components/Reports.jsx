@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useStock } from '../context/StockContext.jsx';
 import { useLanguage } from '../context/LanguageContext.jsx';
+import { addDays, subDays, isWithinInterval, parseISO } from 'date-fns';
 import './Reports.css';
 
 const Reports = ({ user }) => {
@@ -19,13 +20,26 @@ const Reports = ({ user }) => {
 
     const [activeReport, setActiveReport] = useState('overview');
     const [dateRange, setDateRange] = useState('30');
-    const [exportFormat, setExportFormat] = useState('pdf');
+    const [exportFormat, setExportFormat] = useState('csv'); // Cambiado a 'csv' por defecto
 
     // Calcular métricas avanzadas
     const calculateAdvancedMetrics = () => {
-        const stats = dashboardStats;
-        
-        // Valor total del inventario por categoría
+        const today = new Date();
+        const startDate = subDays(today, parseInt(dateRange));
+        const endDate = addDays(today, 1); // Para incluir el día actual completo
+
+        // Filtrar órdenes por rango de fechas
+        const filteredOrders = orders.filter(order => {
+            const orderDate = order.createdAt?.toDate ? order.createdAt.toDate() : parseISO(order.createdAt);
+            return isWithinInterval(orderDate, { start: startDate, end: endDate });
+        });
+
+        // Recalcular dashboardStats para el rango de fechas (si aplica)
+        // Para este reporte, usaremos los productos e inventario completos,
+        // pero las órdenes y movimientos de stock sí se filtrarán.
+        const stats = dashboardStats; // Mantener stats generales para overview
+
+        // Valor total del inventario por categoría (siempre sobre el inventario actual)
         const inventoryByCategory = productsWithInventory.reduce((acc, product) => {
             const category = product.category || t('products.noCategory');
             const value = product.inventory.currentStock * product.price;
@@ -33,13 +47,26 @@ const Reports = ({ user }) => {
             return acc;
         }, {});
 
-        // Productos más vendidos (simulado basado en stock bajo)
-        const topProducts = productsWithInventory
-            .filter(p => p.inventory.currentStock < p.inventory.maxStock * 0.5)
-            .sort((a, b) => (b.inventory.maxStock - b.inventory.currentStock) - (a.inventory.maxStock - a.inventory.currentStock))
+        // Productos más vendidos (basado en pedidos de salida dentro del rango de fechas)
+        const productSales = filteredOrders
+            .filter(order => order.type === 'outbound')
+            .reduce((acc, order) => {
+                order.items.forEach(item => {
+                    acc[item.productId] = (acc[item.productId] || 0) + item.quantity;
+                });
+                return acc;
+            }, {});
+
+        const topProducts = Object.entries(productSales)
+            .map(([productId, totalQuantitySold]) => {
+                const product = productsWithInventory.find(p => p.id === productId);
+                return product ? { ...product, totalQuantitySold } : null;
+            })
+            .filter(Boolean)
+            .sort((a, b) => b.totalQuantitySold - a.totalQuantitySold)
             .slice(0, 5);
 
-            // Análisis de proveedores
+        // Análisis de proveedores (siempre sobre todos los proveedores, pero se podría filtrar por actividad)
         const supplierAnalysis = suppliers.map(supplier => {
             const supplierProducts = products.filter(p => p.supplier === supplier.name);
             const totalValue = supplierProducts.reduce((sum, product) => {
@@ -55,13 +82,13 @@ const Reports = ({ user }) => {
         }).sort((a, b) => b.totalValue - a.totalValue);
 
         return {
-            ...stats,
+            ...stats, // Mantener stats generales para overview
             inventoryByCategory,
             topProducts,
             supplierAnalysis,
             totalSuppliers: suppliers.length,
-            totalOrders: orders.length,
-            averageOrderValue: orders.length > 0 ? orders.reduce((sum, order) => sum + order.totalAmount, 0) / orders.length : 0
+            totalOrders: filteredOrders.length, // Total de órdenes en el rango de fechas
+            averageOrderValue: filteredOrders.length > 0 ? filteredOrders.reduce((sum, order) => sum + order.totalAmount, 0) / filteredOrders.length : 0
         };
     };
 
@@ -245,13 +272,13 @@ const Reports = ({ user }) => {
                     <tbody>
                         {productsWithInventory.map(product => (
                             <tr key={product.id}>
-                                <td>{product.name}</td>
-                                <td>{product.sku}</td>
-                                <td>{product.category || t('products.noCategory')}</td>
-                                <td>{product.inventory.currentStock}</td>
-                                <td>{product.inventory.minStock}</td>
-                                <td>${(product.inventory.currentStock * product.price).toLocaleString()}</td>
-                                <td>
+                                <td data-label={t('reports.inventory.table.product')}>{product.name}</td>
+                                <td data-label={t('reports.inventory.table.sku')}>{product.sku}</td>
+                                <td data-label={t('reports.inventory.table.category')}>{product.category || t('products.noCategory')}</td>
+                                <td data-label={t('reports.inventory.table.currentStock')}>{product.inventory.currentStock}</td>
+                                <td data-label={t('reports.inventory.table.minStock')}>{product.inventory.minStock}</td>
+                                <td data-label={t('reports.inventory.table.totalValue')}>${(product.inventory.currentStock * product.price).toLocaleString()}</td>
+                                <td data-label={t('reports.inventory.table.status')}>
                                     <span className={`status-badge ${
                                         product.inventory.currentStock === 0 ? 'danger' :
                                         product.inventory.currentStock <= product.inventory.minStock ? 'warning' : 'success'
@@ -362,7 +389,6 @@ const Reports = ({ user }) => {
                             onChange={(e) => setExportFormat(e.target.value)}
                             className="export-format-select"
                         >
-                            <option value="pdf">{t('reports.formats.pdf')}</option>
                             <option value="csv">{t('reports.formats.csv')}</option>
                             <option value="json">{t('reports.formats.json')}</option>
                         </select>

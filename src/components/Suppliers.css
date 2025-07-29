@@ -770,9 +770,54 @@
 }
 
 /* Responsive design */
-@media (max-width: 1024px) {
-    .suppliers-cards {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+@media (max-width: 1200px) {
+    .suppliers-table {
+        min-width: 0;
+    }
+
+    .suppliers-table thead {
+        display: none;
+    }
+
+    .suppliers-table tbody,
+    .suppliers-table tr,
+    .suppliers-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .suppliers-table tr {
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .suppliers-table td {
+        padding: 0.75rem 0.5rem;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+    }
+
+    .suppliers-table td:last-child {
+        border-bottom: none;
+    }
+
+    .suppliers-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-align: left;
+        margin-right: 1rem;
+    }
+
+    .supplier-info, .location-info {
+        max-width: none;
     }
 }
 
@@ -802,7 +847,7 @@
     }
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
         gap: 1rem;
     }
 
@@ -833,44 +878,11 @@
     .form-actions {
         flex-direction: column-reverse;
     }
-    
-    .action-buttons {
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-    
-    .card-actions {
-        flex-direction: column;
-    }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 480px) {
     .stats-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .suppliers-table {
-        font-size: 0.8rem;
-    }
-    
-    .suppliers-table th,
-    .suppliers-table td {
-        padding: 0.5rem;
-    }
-    
-    .supplier-info,
-    .location-info {
-        max-width: 120px;
-    }
-    
-    .contact-info .info-row {
-        flex-direction: column;
-        margin-bottom: 1rem;
-    }
-    
-    .contact-info .info-row strong {
-        min-width: auto;
-        margin-bottom: 0.25rem;
     }
 }
 

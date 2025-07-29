@@ -118,8 +118,6 @@ const Products = () => {
             cost: parseFloat(formData.cost),
             minStock: parseInt(formData.minStock),
             maxStock: parseInt(formData.minStock) * 5, // Valor por defecto
-            createdAt: new Date().toISOString().split('T')[0],
-            updatedAt: new Date().toISOString().split('T')[0]
         };
         
         try {
@@ -150,7 +148,7 @@ const Products = () => {
             barcode: product.barcode,
             supplier: product.supplier,
             minStock: product.minStock.toString(),
-            location: product.inventory?.location || product.location || 'Almacén A' // Compatible con datos antiguos y nuevos
+            location: product.inventory?.location || 'Almacén A'
         });
         setShowAddForm(true);
     };
@@ -368,32 +366,32 @@ const Products = () => {
                         <tbody>
                             {filteredProducts.map(product => (
                                 <tr key={product.id}>
-                                    <td>
+                                    <td data-label={t('products.table.product')}>
                                         <div className="product-info">
                                             <div className="product-name">{product.name}</div>
                                             <div className="product-description">{product.description}</div>
                                         </div>
                                     </td>
-                                    <td className="sku-cell">{product.sku}</td>
-                                    <td>{product.category}</td>
-                                    <td className="price-cell">{settings.general.currency} {product.price.toFixed(2)}</td>
-                                    <td className="cost-cell">{settings.general.currency} {product.cost.toFixed(2)}</td>
-                                    <td className="margin-cell">
+                                    <td data-label={t('products.table.sku')} className="sku-cell">{product.sku}</td>
+                                    <td data-label={t('products.table.category')}>{product.category}</td>
+                                    <td data-label={t('products.table.price')} className="price-cell">{settings.general.currency} {product.price.toFixed(2)}</td>
+                                    <td data-label={t('products.table.cost')} className="cost-cell">{settings.general.currency} {product.cost.toFixed(2)}</td>
+                                    <td data-label={t('products.table.margin')} className="margin-cell">
                                         <span className={`margin ${parseFloat(calculateMargin(product.price, product.cost)) > 30 ? 'good' : 'low'}`}>
                                             {calculateMargin(product.price, product.cost)}%
                                         </span>
                                     </td>
-                                    <td className="stock-cell">{product.inventory.currentStock}</td>
-                                    <td className="stock-cell">{product.minStock}</td>
-                                    <td>{product.inventory?.location || product.location}</td>
-                                    <td>
+                                    <td data-label={t('products.table.currentStock')} className="stock-cell">{product.inventory.currentStock}</td>
+                                    <td data-label={t('products.table.minStock')} className="stock-cell">{product.minStock}</td>
+                                    <td data-label={t('products.table.location')}>{product.inventory?.location}</td>
+                                    <td data-label={t('products.table.actions')}>
                                         <div className="action-buttons">
                                             <button 
                                                 className="btn-edit"
                                                 onClick={() => handleEditProduct(product)}
                                                 title={t('general.edit')}
                                             >
-                                                ✏️
+                                                ✏️ {t('general.edit')}
                                             </button>
                                             <button 
                                                 className="btn-delete"
@@ -401,7 +399,7 @@ const Products = () => {
                                                 title={t('general.delete')}
                                                 disabled={deletingId === product.id}
                                             >
-                                                {deletingId === product.id ? '⏳' : '🗑️'}
+                                                {deletingId === product.id ? '⏳' : '🗑️'} {t('general.delete')}
                                             </button>
                                         </div>
                                     </td>

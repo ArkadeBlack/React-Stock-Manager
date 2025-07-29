@@ -147,7 +147,7 @@ body.dark {
     border-radius: var(--settings-radius);
     font-size: 0.875rem;
     transition: var(--settings-transition);
-    background: var(--white);
+    background: var(--settings-surface);
     color: var(--settings-text-primary);
 }
 
@@ -391,36 +391,145 @@ body.dark .btn-save:hover {
         padding: 1rem;
     }
     
+    .settings-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .settings-header p {
+        font-size: 1rem;
+    }
+
     .settings-tabs {
         overflow-x: auto;
         padding-bottom: 0.5rem;
+        justify-content: flex-start; /* Alinea las pestañas al inicio */
     }
     
     .tab-button {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
         white-space: nowrap;
+        flex-shrink: 0; /* Evita que las pestañas se encojan */
     }
     
     .settings-content {
         padding: 1.5rem;
     }
     
+    .settings-form {
+        gap: 1rem; /* Reduce el espacio entre grupos de formulario */
+    }
+
+    .form-group {
+        margin-bottom: 0.75rem; /* Reduce el margen inferior de los grupos */
+    }
+
+    .form-group label {
+        font-size: 0.8rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group select {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .checkbox-group {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .notification-group {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .notification-group h3 {
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
     .import-export-container {
         grid-template-columns: 1fr;
+        gap: 1.5rem;
     }
     
     .settings-actions {
-        padding: 1.5rem;
+        flex-direction: column-reverse; /* Apila los botones */
+        gap: 0.75rem;
+        padding: 1rem;
         border-top: 1px solid var(--settings-border);
-        background-color: var(--settings-background);
+        background-color: var(--settings-surface); /* Asegura el fondo */
+    }
+
+    .btn-cancel,
+    .btn-save {
+        width: 100%; /* Ocupa todo el ancho */
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
     }
 
     .save-message {
-        left: 1rem;
-        right: 1rem;
-        bottom: 1rem;
+        left: 0.5rem;
+        right: 0.5rem;
+        bottom: 0.5rem;
         text-align: center;
+        padding: 0.8rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .danger-zone {
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .danger-zone h3 {
+        font-size: 1.1rem;
+    }
+
+    .danger-zone p {
+        font-size: 0.85rem;
+    }
+
+    .btn-danger {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .settings-container {
+        padding: 0.5rem;
+    }
+
+    .settings-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .settings-header p {
+        font-size: 0.9rem;
+    }
+
+    .settings-content {
+        padding: 1rem;
+    }
+
+    .settings-section h2 {
+        font-size: 1.25rem;
+    }
+
+    .settings-description {
+        font-size: 0.85rem;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="number"],
+    .form-group select {
+        font-size: 16px; /* Evita el zoom en iOS */
     }
 }
 

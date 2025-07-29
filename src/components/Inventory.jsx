@@ -99,7 +99,10 @@ const Inventory = () => {
         setIsSubmitting(true);
         try {
             const newStock = parseInt(stockAdjustment.newStock);
-            await updateStock(selectedProduct.id, { currentStock: newStock });
+            await updateStock(selectedProduct.id, 
+                { currentStock: newStock }, 
+                { type: stockAdjustment.type, reason: stockAdjustment.reason }
+            );
             
             showNotification(t('inventory.stockUpdated'), 'success');
             setShowStockModal(false);
@@ -136,7 +139,10 @@ const Inventory = () => {
         setIsSubmitting(true);
         try {
             const newStock = parseInt(quickStockData.newStock);
-            await updateStock(quickStockData.productId, { currentStock: newStock });
+            await updateStock(quickStockData.productId, 
+                { currentStock: newStock }, 
+                { type: 'quick_adjustment', reason: t('inventory.quickAdjustmentReason') }
+            );
 
             showNotification(t('inventory.stockUpdated'), 'success');
             setShowQuickModal(false);
@@ -261,20 +267,20 @@ const Inventory = () => {
                         <tbody>
                             {filteredData.map(item => (
                                 <tr key={item.id}>
-                                    <td className="product-name">{item.name}</td>
-                                    <td>{item.category}</td>
-                                    <td className="stock-number">{item.inventory.currentStock}</td>
-                                    <td className="min-stock-number">{item.inventory.minStock}</td>
-                                    <td>{item.location}</td>
-                                    <td>
+                                    <td data-label={t('products.name')} className="product-name">{item.name}</td>
+                                    <td data-label={t('products.category')}>{item.category}</td>
+                                    <td data-label={t('inventory.currentStock')} className="stock-number">{item.inventory.currentStock}</td>
+                                    <td data-label={t('inventory.minStock')} className="min-stock-number">{item.inventory.minStock}</td>
+                                    <td data-label={t('products.location')}>{item.inventory.location}</td>
+                                    <td data-label={t('general.status')}>
                                         <span className={`status ${getStockStatus(item.inventory.currentStock, item.inventory.minStock)}`}>
                                             {getStockStatusText(item.inventory.currentStock, item.inventory.minStock)}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td data-label={t('inventory.lastUpdated')}>
                                         {item.inventory.lastUpdated && new Date(item.inventory.lastUpdated.seconds ? item.inventory.lastUpdated.toDate() : item.inventory.lastUpdated).toLocaleDateString()}
                                     </td>
-                                    <td>
+                                    <td data-label={t('general.actions')}>
                                         <div className="action-buttons">
                                             <button 
                                                 className="btn-action btn-adjust" 
@@ -313,7 +319,7 @@ const Inventory = () => {
                             <div className="card-body">
                                 <p><strong>{t('products.category')}:</strong> {item.category}</p>
                                 <p><strong>{t('products.stock')}:</strong> {item.inventory.currentStock} / {item.inventory.minStock} ({t('inventory.min')})</p>
-                                <p><strong>{t('products.location')}:</strong> {item.location}</p>
+                                <p><strong>{t('products.location')}:</strong> {item.inventory.location}</p>
                                 <p><strong>{t('inventory.updated')}:</strong> {item.inventory.lastUpdated && new Date(item.inventory.lastUpdated.seconds ? item.inventory.lastUpdated.toDate() : item.inventory.lastUpdated).toLocaleDateString()}</p>
                             </div>
                             <div className="card-actions">

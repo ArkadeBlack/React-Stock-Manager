@@ -554,3 +554,84 @@ body.dark .export-btn:hover {
     flex-direction: column;
     gap: 0.5rem;
 }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .reports-container {
+        padding: 1rem;
+    }
+
+    .reports-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reports-nav {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .reports-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .export-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .report-content {
+        padding: 1.5rem;
+    }
+
+    .report-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .report-header p {
+        font-size: 1rem;
+    }
+
+    .metrics-grid,
+    .charts-grid,
+    .suppliers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inventory-table thead {
+        display: none;
+    }
+
+    .inventory-table tbody,
+    .inventory-table tr,
+    .inventory-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .inventory-table tr {
+        margin-bottom: 1rem;
+        border: 1px solid var(--reports-border);
+        border-radius: var(--reports-radius);
+        padding: 1rem;
+    }
+
+    .inventory-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--reports-border);
+    }
+
+    .inventory-table td:last-child {
+        border-bottom: none;
+    }
+
+    .inventory-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--reports-text-secondary);
+    }
+}

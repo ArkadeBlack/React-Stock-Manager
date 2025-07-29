@@ -280,7 +280,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                         <button className="logout-btn" onClick={async () => await logout()}>
-                            🚪 {t('general.logout')}
+                            {t('general.logout')}
                         </button>
                     </div>
                     <button 

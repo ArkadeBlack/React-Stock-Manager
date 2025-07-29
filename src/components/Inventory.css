@@ -646,17 +646,77 @@
     box-shadow: 0 4px 6px rgba(251, 146, 60, 0.25);
 }
 
-/* Responsive mejorado para modales */
+/* Responsive */
+@media (max-width: 992px) {
+    .inventory-table {
+        min-width: 0;
+    }
+
+    .inventory-table thead {
+        display: none;
+    }
+
+    .inventory-table tbody,
+    .inventory-table tr,
+    .inventory-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .inventory-table tr {
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .inventory-table td {
+        padding: 0.75rem 0.5rem;
+        border: none;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+    }
+
+    .inventory-table td:last-child {
+        border-bottom: none;
+    }
+
+    .inventory-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-align: left;
+        margin-right: 1rem;
+    }
+}
+
 @media (max-width: 768px) {
+    .inventory-container {
+        padding: 1rem;
+    }
+    .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .filter-controls {
+        flex-direction: column;
+    }
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
     .modal-overlay {
         padding: 0.5rem;
-        align-items: flex-start; /* ALINEAR arriba en móviles */
-        padding-top: 2rem; /* ESPACIO superior */
+        align-items: flex-start;
+        padding-top: 2rem;
     }
     
     .modal-content {
-        max-height: 85vh; /* MÁS altura en móviles */
-        margin: 0; /* SIN margen automático */
+        max-height: 85vh;
+        margin: 0;
     }
     
     .modal-content.quick-modal {
@@ -673,27 +733,15 @@
         padding: 1rem;
     }
     
-    .form-actions,
-    .form-actions-quick {
-        flex-direction: column;
+    .form-actions {
+        flex-direction: column-reverse;
         gap: 0.5rem;
     }
     
     .btn-cancel,
-    .btn-save,
-    .btn-cancel-quick,
-    .btn-save-quick {
+    .btn-save {
         width: 100%;
         padding: 1rem;
-    }
-    
-    .current-stock-info {
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-    }
-    
-    .form-group {
-        margin-bottom: 0.75rem;
     }
 }
 
