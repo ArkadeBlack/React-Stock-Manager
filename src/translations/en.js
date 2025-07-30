@@ -588,8 +588,7 @@ export default {
       general: 'General',
       inventory: 'Inventory',
       notifications: 'Notifications',
-      user: 'User',
-      importExport: 'Import/Export'
+      user: 'User'
     },
     general: {
       title: 'General Settings',
@@ -647,16 +646,6 @@ export default {
       accountDeleteSuccess: 'Your account has been deleted.',
       accountDeleteError: 'Error deleting account.'
     },
-    importExport: {
-      title: 'Import / Export Settings',
-      description: 'Save or load settings to transfer between devices or make backups',
-      exportSettings: 'Export Settings',
-      importSettings: 'Import Settings',
-      exportDescription: 'Download a JSON file with all your current settings',
-      importDescription: 'Upload a JSON file with previously exported settings',
-      selectFile: 'Select File',
-      importNote: 'Note: Importing settings will overwrite your current settings'
-    },
     themes: {
       light: 'Light',
       dark: 'Dark',
@@ -684,8 +673,6 @@ export default {
     },
     saveSuccess: 'Settings saved successfully',
     saveError: 'Error saving settings',
-    importSuccess: 'Settings imported successfully',
-    importError: 'Error importing settings: invalid format',
     changesDiscarded: 'Changes discarded'
   },
   activity: {

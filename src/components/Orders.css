@@ -838,42 +838,51 @@ body.dark .orders-table tbody tr:nth-child(even) {
     }
 
     .item-row {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-areas:
+            "product product"
+            "quantity price"
+            "total remove";
+        gap: 0.75rem;
         padding: 1rem;
-        border-bottom: 1px solid var(--border-color);
     }
 
-    .item-row > div {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .item-product { grid-area: product; }
+    .item-quantity { grid-area: quantity; }
+    .item-price { grid-area: price; }
+    .item-total { grid-area: total; }
+    .btn-remove-item { grid-area: remove; }
+
+    .item-row > div, .item-row > button {
+        width: 100%;
     }
 
     .item-row > div::before {
         content: attr(data-label);
-        font-weight: 500;
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 0.8rem;
         color: var(--text-secondary);
     }
 
-    .item-product select {
-        width: auto;
-        flex-grow: 1;
-        margin-left: 1rem;
-    }
-
-    .item-quantity input, .item-price input {
-        width: 80px;
-        text-align: right;
+    .item-product select,
+    .item-quantity input,
+    .item-price input {
+        width: 100%;
+        padding: 0.5rem;
     }
 
     .item-total {
-        justify-content: flex-end;
+        text-align: left;
+        font-weight: 600;
+        align-self: center;
     }
 
     .btn-remove-item {
-        grid-column: 1 / -1;
-        margin-top: 0.5rem;
+        justify-self: end;
+        width: auto;
+        padding: 0.5rem 1rem;
     }
 }
 

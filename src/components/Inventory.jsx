@@ -14,13 +14,6 @@ const Inventory = () => {
     const [filterCategory, setFilterCategory] = useState('all');
     const [sortBy, setSortBy] = useState('name');
     const [viewMode, setViewMode] = useState('table');
-    const [showStockModal, setShowStockModal] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [stockAdjustment, setStockAdjustment] = useState({
-        newStock: '',
-        reason: '',
-        type: 'adjustment'
-    });
     const [isSubmitting, setIsSubmitting] = useState(false);
     
     // Estado para modal rápido
@@ -74,46 +67,6 @@ const Inventory = () => {
         if (currentStock === 0) return t('products.status.outOfStock');
         if (currentStock <= minStock) return t('products.status.lowStock');
         return t('products.status.inStock');
-    };
-
-    // Abrir modal de ajuste de stock
-    const openStockModal = (product) => {
-        setSelectedProduct(product);
-        setStockAdjustment({
-            newStock: product.inventory.currentStock.toString(),
-            reason: '',
-            type: 'adjustment'
-        });
-        setShowStockModal(true);
-    };
-
-    // Manejar ajuste de stock
-    const handleStockAdjustment = async (e) => {
-        e.preventDefault();
-        
-        if (!selectedProduct || !stockAdjustment.newStock || !stockAdjustment.reason) {
-            showNotification(t('inventory.fillAllFields'), 'error');
-            return;
-        }
-
-        setIsSubmitting(true);
-        try {
-            const newStock = parseInt(stockAdjustment.newStock);
-            await updateStock(selectedProduct.id, 
-                { currentStock: newStock }, 
-                { type: stockAdjustment.type, reason: stockAdjustment.reason }
-            );
-            
-            showNotification(t('inventory.stockUpdated'), 'success');
-            setShowStockModal(false);
-            setSelectedProduct(null);
-            setStockAdjustment({ newStock: '', reason: '', type: 'adjustment' });
-        } catch (error) {
-            console.error("Error al ajustar el stock:", error);
-            showNotification(t('inventory.errorAdjustingStock'), 'error');
-        } finally {
-            setIsSubmitting(false);
-        }
     };
 
     // Función para ajuste rápido
@@ -283,13 +236,6 @@ const Inventory = () => {
                                     <td data-label={t('general.actions')}>
                                         <div className="action-buttons">
                                             <button 
-                                                className="btn-action btn-adjust" 
-                                                title={t('inventory.adjustStock')}
-                                                onClick={() => openStockModal(item)}
-                                            >
-                                                📊
-                                            </button>
-                                            <button 
                                                 className="btn-action btn-quick" 
                                                 title={t('inventory.quickAdjustment')}
                                                 onClick={() => handleQuickStockAdjustment(item)}
@@ -324,12 +270,6 @@ const Inventory = () => {
                             </div>
                             <div className="card-actions">
                                 <button 
-                                    className="btn-action btn-adjust"
-                                    onClick={() => openStockModal(item)}
-                                >
-                                    {t('inventory.adjustStock')}
-                                </button>
-                                <button 
                                     className="btn-action btn-quick"
                                     onClick={() => handleQuickStockAdjustment(item)}
                                 >
@@ -338,97 +278,6 @@ const Inventory = () => {
                             </div>
                         </div>
                     ))}
-                </div>
-            )}
-
-            {/* Modal para ajuste de stock */}
-            {showStockModal && selectedProduct && (
-                <div className="modal-overlay" onClick={() => setShowStockModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <h3>{t('inventory.adjustStock')} - {selectedProduct.name}</h3>
-                            <button 
-                                className="modal-close" 
-                                onClick={() => setShowStockModal(false)}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        
-                        <form onSubmit={handleStockAdjustment} className="stock-form">
-                            <div className="form-body">
-                                                        <div className="form-group">
-                                <label htmlFor="stockType">{t('inventory.adjustmentType')}</label>
-                                <select
-                                    id="stockType"
-                                    value={stockAdjustment.type}
-                                    onChange={(e) => setStockAdjustment({...stockAdjustment, type: e.target.value})}
-                                    className="form-control"
-                                >
-                                    <option value="adjustment">{t('inventory.manualAdjustment')}</option>
-                                    <option value="restock">{t('inventory.restock')}</option>
-                                    <option value="sale">{t('inventory.sale')}</option>
-                                    <option value="return">{t('inventory.return')}</option>
-                                    <option value="damaged">{t('inventory.damaged')}</option>
-                                </select>
-                            </div>
-                            
-                            <div className="form-group">
-                                <label htmlFor="currentStock">{t('inventory.currentStock')}</label>
-                                <input
-                                    type="text"
-                                    id="currentStock"
-                                    value={selectedProduct.inventory.currentStock}
-                                    disabled
-                                    className="form-control"
-                                />
-                            </div>
-                            
-                            <div className="form-group">
-                                <label htmlFor="newStock">{t('inventory.newStock')}</label>
-                                <input
-                                    type="number"
-                                    id="newStock"
-                                    value={stockAdjustment.newStock}
-                                    onChange={(e) => setStockAdjustment({...stockAdjustment, newStock: e.target.value})}
-                                    min="0"
-                                    className="form-control"
-                                    required
-                                />
-                            </div>
-                            
-                            <div className="form-group">
-                                <label htmlFor="reason">{t('inventory.reason')}</label>
-                                <textarea
-                                    id="reason"
-                                    value={stockAdjustment.reason}
-                                    onChange={(e) => setStockAdjustment({...stockAdjustment, reason: e.target.value})}
-                                    className="form-control"
-                                    placeholder={t('inventory.reasonPlaceholder')}
-                                    required
-                                ></textarea>
-                            </div>
-                            </div>
-                            
-                            <div className="form-actions">
-                                <button 
-                                    type="button" 
-                                    className="btn-cancel"
-                                    onClick={() => setShowStockModal(false)}
-                                    disabled={isSubmitting}
-                                >
-                                    {t('general.cancel')}
-                                </button>
-                                <button 
-                                    type="submit" 
-                                    className="btn-save"
-                                    disabled={isSubmitting}
-                                >
-                                    {isSubmitting ? t('general.saving') : t('general.save')}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
             )}
             

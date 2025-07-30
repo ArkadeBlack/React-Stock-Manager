@@ -10,15 +10,15 @@ import { ThemeProvider } from './context/ThemeContext.jsx';
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AppProvider>
-      <NotificationProvider>
-        <LanguageProvider>
+      <LanguageProvider>
+        <NotificationProvider>
           <StockProvider>
             <ThemeProvider>
               <App />
             </ThemeProvider>
           </StockProvider>
-        </LanguageProvider>
-      </NotificationProvider>
+        </NotificationProvider>
+      </LanguageProvider>
     </AppProvider>
   </StrictMode>,
 )

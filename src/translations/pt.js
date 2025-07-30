@@ -587,8 +587,7 @@ export default {
       general: 'Geral',
       inventory: 'Inventário',
       notifications: 'Notificações',
-      user: 'Usuário',
-      importExport: 'Importar/Exportar'
+      user: 'Usuário'
     },
     general: {
       title: 'Configurações Gerais',
@@ -646,16 +645,6 @@ export default {
       accountDeleteSuccess: 'Sua conta foi excluída.',
       accountDeleteError: 'Erro ao excluir a conta.'
     },
-    importExport: {
-      title: 'Importar / Exportar Configurações',
-      description: 'Salve ou carregue configurações para transferir entre dispositivos ou fazer backups',
-      exportSettings: 'Exportar Configurações',
-      importSettings: 'Importar Configurações',
-      exportDescription: 'Baixe um arquivo JSON com todas as suas configurações atuais',
-      importDescription: 'Carregue um arquivo JSON com configurações exportadas anteriormente',
-      selectFile: 'Selecionar Arquivo',
-      importNote: 'Nota: Importar configurações substituirá suas configurações atuais'
-    },
     themes: {
       light: 'Claro',
       dark: 'Escuro',
@@ -683,8 +672,6 @@ export default {
     },
     saveSuccess: 'Configurações salvas com sucesso',
     saveError: 'Erro ao salvar configurações',
-    importSuccess: 'Configurações importadas com sucesso',
-    importError: 'Erro ao importar configurações: formato inválido',
     changesDiscarded: 'Alterações descartadas'
   },
   activity: {

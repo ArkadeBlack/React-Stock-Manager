@@ -190,74 +190,6 @@ const Settings = () => {
         }, 3000);
     };
 
-    // Función para exportar configuraciones
-    const handleExportSettings = () => {
-        const allSettings = {
-            general: generalSettings,
-            inventory: inventorySettings,
-            notifications: notificationSettings,
-            user: userSettings,
-            exportDate: new Date().toISOString()
-        };
-
-        const dataStr = JSON.stringify(allSettings, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `configuraciones-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-    };
-
-    // Función para importar configuraciones
-    const handleImportSettings = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const settings = JSON.parse(event.target.result);
-                
-                if (settings.general) setGeneralSettings(settings.general);
-                if (settings.inventory) setInventorySettings(settings.inventory);
-                if (settings.notifications) setNotificationSettings(settings.notifications);
-                if (settings.user) {
-                    // Preservar el nombre y rol del usuario actual
-                    setUserSettings({
-                        ...settings.user,
-                        name: user?.name || settings.user.name,
-                        role: user?.role || settings.user.role
-                    });
-                }
-                
-                setSaveMessage({
-                    show: true,
-                    type: 'success',
-                    text: t('settings.importSuccess')
-                });
-                
-                setTimeout(() => {
-                    setSaveMessage({ show: false, type: '', text: '' });
-                }, 3000);
-                
-            } catch (error) {
-                setSaveMessage({
-                    show: true,
-                    type: 'error',
-                    text: t('settings.importError')
-                });
-                
-                setTimeout(() => {
-                    setSaveMessage({ show: false, type: '', text: '' });
-                }, 3000);
-            }
-        };
-        
-        reader.readAsText(file);
-        // Limpiar el input de archivo
-        e.target.value = null;
-    };
 
     // Renderizar pestaña de configuraciones generales
     const renderGeneralSettings = () => (
@@ -522,51 +454,6 @@ const Settings = () => {
         </div>
     );
 
-    // Renderizar pestaña de importación/exportación
-    const renderImportExport = () => (
-        <div className="settings-section">
-            <h2>{t('settings.importExport.title')}</h2>
-            <p className="settings-description">
-                {t('settings.importExport.description')}
-            </p>
-
-            <div className="import-export-container">
-                <div className="export-section">
-                    <h3>{t('settings.importExport.exportSettings')}</h3>
-                    <p>
-                        {t('settings.importExport.exportDescription')}
-                    </p>
-                    <button 
-                        className="btn-export"
-                        onClick={handleExportSettings}
-                        disabled={true}
-                    >
-                        {t('settings.importExport.exportSettings')}
-                    </button>
-                </div>
-
-                <div className="import-section">
-                    <h3>{t('settings.importExport.importSettings')}</h3>
-                    <p>
-                        {t('settings.importExport.importDescription')}
-                    </p>
-                    <label className="file-input-label">
-                        {t('settings.importExport.selectFile')}
-                        <input
-                            type="file"
-                            accept=".json"
-                            onChange={handleImportSettings}
-                            className="file-input"
-                            disabled={true}
-                        />
-                    </label>
-                    <p className="import-note">
-                        {t('settings.importExport.importNote')}
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
 
     // Renderizar pestaña de configuraciones de notificaciones
     const renderNotificationSettings = () => {
@@ -704,12 +591,6 @@ const Settings = () => {
                 >
                     {t('settings.tabs.user')}
                 </button>
-                <button 
-                    className={`tab-button ${activeTab === 'import-export' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('import-export')}
-                >
-                    {t('settings.tabs.importExport')}
-                </button>
             </div>
 
             {/* Contenido de la pestaña activa */}
@@ -718,7 +599,6 @@ const Settings = () => {
                 {activeTab === 'inventory' && renderInventorySettings()}
                 {activeTab === 'notifications' && renderNotificationSettings()}
                 {activeTab === 'user' && renderUserSettings()}
-                {activeTab === 'import-export' && renderImportExport()}
             </div>
 
             {/* Botones de acción */}

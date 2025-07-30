@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { useLanguage } from './LanguageContext';
+import { useNotification } from './NotificationContext'; // Importar el hook de notificaciones
 import { useAppContext } from './AppProvider'; // Para obtener el usuario actual
 import { db } from '../firebase'; // Importar la instancia de la base de datos
 import { 
@@ -31,6 +32,7 @@ export const useStock = () => {
 export const StockProvider = ({ children }) => {
     const { user } = useAppContext(); // Obtener el usuario
     const { t } = useLanguage();
+    const { showNotification } = useNotification(); // Obtener la función de notificación
     // Estados principales, ahora inicializados como arrays vacíos
     const [products, setProducts] = useState([]);
     const [inventory, setInventory] = useState([]);
@@ -88,6 +90,10 @@ export const StockProvider = ({ children }) => {
     // Función para agregar actividad, ahora escribe en Firestore
     const addActivity = async (type, messageKey, data = {}) => {
         if (!user) return; // No hacer nada si no hay usuario
+        
+        // Mostrar notificación en tiempo real
+        showNotification(messageKey, data, type);
+
         await addDoc(collection(db, "activities"), {
             userId: user.uid, // <-- AÑADIR ID DE USUARIO
             type,
@@ -131,7 +137,7 @@ export const StockProvider = ({ children }) => {
         });
         
         // 3. Crear actividad
-        addActivity('product', 'activity.product.added', { name: productData.name });
+        addActivity('product', 'activity.product.added', { productName: productData.name });
 
         await batch.commit();
     };
@@ -174,7 +180,7 @@ export const StockProvider = ({ children }) => {
         }
 
         // 3. Crear actividad
-        addActivity('product', 'activity.product.updated', { name: updatedData.name });
+        addActivity('product', 'activity.product.updated', { productName: updatedData.name });
 
         // 4. Ejecutar el batch
         await batch.commit();
@@ -209,7 +215,7 @@ export const StockProvider = ({ children }) => {
         batch.delete(productRef);
     
         // 4. Crear actividad (usando el nombre que guardamos)
-        addActivity('product', 'activity.product.deleted', { name: productName });
+        addActivity('product', 'activity.product.deleted', { productName: productName });
     
         // 5. Ejecutar el batch
         await batch.commit();
@@ -219,7 +225,7 @@ export const StockProvider = ({ children }) => {
     const addOrder = async (orderData) => {
         if (!user) return;
         const batch = writeBatch(db);
-
+    
         // 1. Crear la referencia para el nuevo pedido
         const newOrderRef = doc(collection(db, "orders"));
         batch.set(newOrderRef, {
@@ -228,172 +234,159 @@ export const StockProvider = ({ children }) => {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         });
-
-        // 2. Actualizar el stock de cada producto en el pedido de forma atómica
-        for (const item of orderData.items) {
-            const inventoryQuery = query(
-                collection(db, "inventory"),
-                where("productId", "==", item.productId),
-                where("userId", "==", user.uid)
-            );
-            
-            const inventorySnapshot = await getDocs(inventoryQuery);
-
-            if (!inventorySnapshot.empty) {
-                const inventoryDoc = inventorySnapshot.docs[0];
-                const inventoryRef = doc(db, "inventory", inventoryDoc.id);
-                const inventoryData = inventoryDoc.data();
-                const currentStock = inventoryData.currentStock;
-
-                // --- INICIO DE LA VALIDACIÓN ---
-                if (orderData.type === 'outbound') {
-                    if (currentStock < item.quantity) {
-                        // Lanzar un error si no hay suficiente stock. Esto detendrá el batch.
-                        throw new Error(`Stock insuficiente para el producto con ID: ${item.productId}. Stock: ${currentStock}, Pedido: ${item.quantity}`);
+    
+        // 2. Solo ajustar el stock si el pedido se crea como 'completado'
+        if (orderData.status === 'completed') {
+            for (const item of orderData.items) {
+                const inventoryQuery = query(
+                    collection(db, "inventory"),
+                    where("productId", "==", item.productId),
+                    where("userId", "==", user.uid)
+                );
+                
+                const inventorySnapshot = await getDocs(inventoryQuery);
+    
+                if (!inventorySnapshot.empty) {
+                    const inventoryDoc = inventorySnapshot.docs[0];
+                    const inventoryRef = doc(db, "inventory", inventoryDoc.id);
+                    const inventoryData = inventoryDoc.data();
+                    const currentStock = inventoryData.currentStock;
+    
+                    // Validar stock para pedidos de salida
+                    if (orderData.type === 'outbound' && currentStock < item.quantity) {
+                        throw new Error(`Stock insuficiente para ${item.productId}. Stock: ${currentStock}, Pedido: ${item.quantity}`);
                     }
+    
+                    const stockChange = orderData.type === 'outbound' ? -item.quantity : item.quantity;
+                    const newStock = currentStock + stockChange;
+                    const newAvailableStock = newStock - (inventoryData.reservedStock || 0);
+    
+                    batch.update(inventoryRef, { 
+                        currentStock: newStock,
+                        availableStock: newAvailableStock,
+                        lastMovement: serverTimestamp()
+                    });
+                } else {
+                    throw new Error(`No se encontró inventario para el producto con ID: ${item.productId}`);
                 }
-                // --- FIN DE LA VALIDACIÓN ---
-
-                const newStock = orderData.type === 'outbound'
-                    ? currentStock - item.quantity
-                    : currentStock + item.quantity;
-
-                // Calcular el nuevo stock disponible
-                const newAvailableStock = newStock - (inventoryData.reservedStock || 0);
-
-                batch.update(inventoryRef, { 
-                    currentStock: newStock,
-                    availableStock: newAvailableStock, // Actualizar también el stock disponible
-                    lastMovement: serverTimestamp()
-                });
-            } else {
-                // Si el producto no tiene inventario, la operación falla.
-                // Esto previene pedidos de productos sin inventario registrado.
-                throw new Error(`No se encontró inventario para el producto con ID: ${item.productId}`);
             }
         }
-
+        // Si el estado es 'pending' o 'cancelled', no se hace nada con el stock al crear.
+    
         // 3. Crear actividad
-        addActivity('order', orderData.type === 'inbound' ? 'activity.order.inbound' : 'activity.order.outbound', { count: orderData.items.length });
-
+        addActivity('order', orderData.type === 'inbound' ? 'activity.order.inbound' : 'activity.order.outbound', { count: orderData.items.length, status: orderData.status });
+    
         // 4. Ejecutar todas las operaciones en el batch
         await batch.commit();
     };
 
-   const updateOrder = async (orderId, updatedFields) => {
-    if (!user) return;
-    const batch = writeBatch(db);
-    const orderRef = doc(db, "orders", orderId);
-
-    const orderDoc = await getDoc(orderRef);
-    if (!orderDoc.exists()) return;
-
-    const orderData = orderDoc.data();
-    const prevStatus = orderData.status;
-    const newStatus = updatedFields.status || prevStatus;
-    const type = orderData.type;
-
-    const orderItems = orderData.items || [];
-
-    const shouldApplyStockChange =
-        prevStatus !== 'completed' && newStatus === 'completed';
-
-    const shouldRevertStockChange =
-        prevStatus === 'completed' && newStatus !== 'completed';
-
-    for (const item of orderItems) {
-        const inventoryQuery = query(
-            collection(db, "inventory"),
-            where("productId", "==", item.productId),
-            where("userId", "==", user.uid)
-        );
-        const inventorySnapshot = await getDocs(inventoryQuery);
-
-        if (inventorySnapshot.empty) continue;
-
-        const inventoryDoc = inventorySnapshot.docs[0];
-        const inventoryRef = doc(db, "inventory", inventoryDoc.id);
-        const inventoryData = inventoryDoc.data();
-        const currentStock = inventoryData.currentStock;
-        const reservedStock = inventoryData.reservedStock || 0;
-
-        let newStock = currentStock;
-        let stockChange = 0;
-
-        if (shouldApplyStockChange) {
-            stockChange = type === 'outbound' ? -item.quantity : item.quantity;
-        } else if (shouldRevertStockChange) {
-            stockChange = type === 'outbound' ? item.quantity : -item.quantity;
+    const updateOrder = async (orderId, updatedFields) => {
+        if (!user) return;
+    
+        const batch = writeBatch(db);
+        const orderRef = doc(db, "orders", orderId);
+    
+        try {
+            const orderDoc = await getDoc(orderRef);
+            if (!orderDoc.exists()) {
+                throw new Error("El pedido no existe.");
+            }
+    
+            const orderData = orderDoc.data();
+            const prevStatus = orderData.status;
+            const newStatus = updatedFields.status;
+    
+            // Si el estado no cambia, solo actualizamos los campos y salimos.
+            if (prevStatus === newStatus) {
+                batch.update(orderRef, {
+                    ...updatedFields,
+                    updatedAt: serverTimestamp(),
+                });
+                await batch.commit();
+                return;
+            }
+    
+            const type = orderData.type;
+            const orderItems = orderData.items || [];
+    
+            // Lógica para ajustar el stock
+            for (const item of orderItems) {
+                const inventoryQuery = query(
+                    collection(db, "inventory"),
+                    where("productId", "==", item.productId),
+                    where("userId", "==", user.uid)
+                );
+                const inventorySnapshot = await getDocs(inventoryQuery);
+    
+                if (inventorySnapshot.empty) {
+                    console.warn(`No se encontró inventario para el producto ${item.productId}`);
+                    continue; // Opcional: podrías lanzar un error si el inventario es crucial
+                }
+    
+                const inventoryDoc = inventorySnapshot.docs[0];
+                const inventoryRef = doc(db, "inventory", inventoryDoc.id);
+                const inventoryData = inventoryDoc.data();
+                let stockChange = 0;
+    
+                // CASO 1: El pedido se marca como 'completado'
+                if (newStatus === 'completed' && prevStatus !== 'completed') {
+                    stockChange = type === 'outbound' ? -item.quantity : item.quantity;
+                }
+                // CASO 2: Un pedido 'completado' se cancela o vuelve a pendiente
+                else if (prevStatus === 'completed' && (newStatus === 'cancelled' || newStatus === 'pending')) {
+                    stockChange = type === 'outbound' ? item.quantity : -item.quantity;
+                }
+    
+                if (stockChange !== 0) {
+                    const newStock = (inventoryData.currentStock || 0) + stockChange;
+                    const newAvailableStock = newStock - (inventoryData.reservedStock || 0);
+    
+                    batch.update(inventoryRef, {
+                        currentStock: newStock,
+                        availableStock: newAvailableStock,
+                        lastMovement: serverTimestamp(),
+                    });
+                }
+            }
+    
+            // Actualizar el pedido con los nuevos campos
+            batch.update(orderRef, {
+                ...updatedFields,
+                updatedAt: serverTimestamp(),
+            });
+    
+            addActivity("order", "activity.order.statusChanged", {
+                orderId: orderId,
+                status: newStatus,
+            });
+    
+            await batch.commit();
+    
+        } catch (error) {
+            console.error("Error al actualizar el pedido:", error);
+            // Opcional: notificar al usuario del error
+            throw error; // Relanzar el error para que el componente que llama pueda manejarlo
         }
-
-        newStock += stockChange;
-        const newAvailableStock = newStock - reservedStock;
-
-        batch.update(inventoryRef, {
-            currentStock: newStock,
-            availableStock: newAvailableStock,
-            lastMovement: serverTimestamp(),
-        });
-    }
-
-    batch.update(orderRef, {
-        ...updatedFields,
-        updatedAt: serverTimestamp(),
-    });
-
-    addActivity("order", "activity.order.updated", { id: orderId });
-
-    await batch.commit();
-};
+    };
 
 
    const deleteOrder = async (orderId) => {
     if (!user) return;
-    const batch = writeBatch(db);
+
     const orderRef = doc(db, "orders", orderId);
 
+    // Opcional: obtener datos del pedido para la actividad antes de borrar
     const orderDoc = await getDoc(orderRef);
-    if (!orderDoc.exists()) return;
-
-    const orderData = orderDoc.data();
-    const orderItems = orderData.items || [];
-    const type = orderData.type;
-    const status = orderData.status;
-
-    // Solo revertir si fue completado
-    if (status === 'completed') {
-        for (const item of orderItems) {
-            const inventoryQuery = query(
-                collection(db, "inventory"),
-                where("productId", "==", item.productId),
-                where("userId", "==", user.uid)
-            );
-            const inventorySnapshot = await getDocs(inventoryQuery);
-
-            if (inventorySnapshot.empty) continue;
-
-            const inventoryDoc = inventorySnapshot.docs[0];
-            const inventoryRef = doc(db, "inventory", inventoryDoc.id);
-            const inventoryData = inventoryDoc.data();
-            const currentStock = inventoryData.currentStock;
-            const reservedStock = inventoryData.reservedStock || 0;
-
-            const stockChange = type === 'outbound' ? item.quantity : -item.quantity;
-            const newStock = currentStock + stockChange;
-            const newAvailableStock = newStock - reservedStock;
-
-            batch.update(inventoryRef, {
-                currentStock: newStock,
-                availableStock: newAvailableStock,
-                lastMovement: serverTimestamp(),
-            });
-        }
+    if (!orderDoc.exists()) {
+        console.error("El pedido que intentas eliminar no existe.");
+        return;
     }
+    const orderIdForActivity = orderDoc.id; // Guardar ID para la actividad
 
-    batch.delete(orderRef);
-    addActivity('order', 'activity.order.deleted', { id: orderId });
+    // Simplemente borra el pedido sin revertir el stock
+    await deleteDoc(orderRef);
 
-    await batch.commit();
+    addActivity('order', 'activity.order.deleted', { orderId: orderIdForActivity });
 };
 
 
@@ -407,7 +400,7 @@ export const StockProvider = ({ children }) => {
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         });
-        addActivity('supplier', 'activity.supplier.added', { name: supplierData.name });
+        addActivity('supplier', 'activity.supplier.added', { supplierName: supplierData.name });
     };
 
     const updateSupplier = async (supplierId, updatedData) => {
@@ -416,14 +409,14 @@ export const StockProvider = ({ children }) => {
             ...updatedData,
             updatedAt: serverTimestamp()
         });
-        addActivity('supplier', 'activity.supplier.updated', { name: updatedData.name });
+        addActivity('supplier', 'activity.supplier.updated', { supplierName: updatedData.name });
     };
 
     const deleteSupplier = async (supplierId) => {
         const supplierRef = doc(db, "suppliers", supplierId);
         const supplierDoc = await getDoc(supplierRef);
         if (supplierDoc.exists()) {
-            addActivity('supplier', 'activity.supplier.deleted', { name: supplierDoc.data().name });
+            addActivity('supplier', 'activity.supplier.deleted', { supplierName: supplierDoc.data().name });
         }
         await deleteDoc(supplierRef);
     };
@@ -464,7 +457,7 @@ export const StockProvider = ({ children }) => {
             };
 
             await setDoc(newInventoryRef, newInventoryData);
-            addActivity('stock', 'activity.stock.created', { name: productName });
+            addActivity('stock', 'activity.stock.created', { productName: productName });
 
             // Registrar movimiento de stock
             await addDoc(collection(db, "stockMovements"), {
@@ -497,7 +490,7 @@ export const StockProvider = ({ children }) => {
                 ...dataToUpdate,
                 lastUpdated: serverTimestamp(),
             });
-            addActivity('stock', 'activity.stock.updated', { name: productName });
+            addActivity('stock', 'activity.stock.updated', { productName: productName });
 
             // Registrar movimiento de stock
             await addDoc(collection(db, "stockMovements"), {

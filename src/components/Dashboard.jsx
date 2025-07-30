@@ -294,6 +294,16 @@ const Dashboard = () => {
 
             {/* Sidebar for mobile */}
             <nav className={`sidebar ${isMenuOpen ? 'open' : ''}`}>
+                <div className="sidebar-header">
+                    <div className="logo-section">
+                        <img src={kitty} alt={t('inicio.logoAlt')} className="sidebar-logo" />
+                        <div className="logo-text">
+                            <h2>{t('inicio.mainTitle')}</h2>
+                            <p>{settings.general.companyName}</p>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Navegación para móvil */}
                 <div className="nav-menu-mobile">
                     <NavLink to="/dashboard" end className="nav-item" onClick={() => setIsMenuOpen(false)}>📊 {t('general.dashboard')}</NavLink>
@@ -303,6 +313,26 @@ const Dashboard = () => {
                     <NavLink to="/dashboard/suppliers" className="nav-item" onClick={() => setIsMenuOpen(false)}>🏢 {t('general.suppliers')}</NavLink>
                     <NavLink to="/dashboard/reports" className="nav-item" onClick={() => setIsMenuOpen(false)}>📈 {t('general.reports')}</NavLink>
                     <NavLink to="/dashboard/settings" className="nav-item" onClick={() => setIsMenuOpen(false)}>⚙️ {t('general.settings')}</NavLink>
+                </div>
+
+                <div className="sidebar-footer">
+                    <div className="user-section">
+                        <div className="user-info">
+                            <div className="user-avatar">
+                                {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="user-details">
+                                <p className="user-name">{user?.name || user?.email}</p>
+                                <p className="user-role">{t('general.guest')}</p>
+                            </div>
+                        </div>
+                        <button className="logout-btn" onClick={async () => {
+                            await logout();
+                            setIsMenuOpen(false);
+                        }}>
+                            {t('general.logout')}
+                        </button>
+                    </div>
                 </div>
             </nav>
 

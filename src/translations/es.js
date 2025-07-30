@@ -9,6 +9,12 @@ export default {
     settings: 'Configuración',
     logout: 'Cerrar Sesión',
     save: 'Guardar',
+    saving: 'Guardando...',
+    loading: 'Cargando...',
+    error: 'Error',
+    success: 'Éxito',
+    warning: 'Advertencia',
+    info: 'Información',
     cancel: 'Cancelar',
     delete: 'Eliminar',
     edit: 'Editar',
@@ -88,6 +94,7 @@ export default {
     recoveryEmailError: 'No se pudo enviar el correo de recuperación. Por favor intente de nuevo.',
     passwordMismatchError: 'Las contraseñas no coinciden',
     loginError: 'Credenciales incorrectas. Por favor intente de nuevo.',
+    invalidCredentials: 'Credenciales inválidas.',
     registerError: 'No se pudo completar el registro. Verifique sus datos.'
   },
   dashboard: {
@@ -588,8 +595,7 @@ export default {
       general: 'General',
       inventory: 'Inventario',
       notifications: 'Notificaciones',
-      user: 'Usuario',
-      importExport: 'Importar/Exportar'
+      user: 'Usuario'
     },
     general: {
       title: 'Configuración General',
@@ -647,16 +653,6 @@ export default {
       accountDeleteSuccess: 'Tu cuenta ha sido eliminada.',
       accountDeleteError: 'Error al eliminar la cuenta.'
     },
-    importExport: {
-      title: 'Importar / Exportar Configuraciones',
-      description: 'Guarda o carga configuraciones para transferirlas entre dispositivos o hacer copias de seguridad',
-      exportSettings: 'Exportar Configuraciones',
-      importSettings: 'Importar Configuraciones',
-      exportDescription: 'Descarga un archivo JSON con todas tus configuraciones actuales',
-      importDescription: 'Carga un archivo JSON con configuraciones previamente exportadas',
-      selectFile: 'Seleccionar Archivo',
-      importNote: 'Nota: Importar configuraciones sobrescribirá tus configuraciones actuales'
-    },
     themes: {
       light: 'Claro',
       dark: 'Oscuro',
@@ -684,34 +680,33 @@ export default {
     },
     saveSuccess: 'Configuraciones guardadas correctamente',
     saveError: 'Error al guardar configuraciones',
-    importSuccess: 'Configuraciones importadas correctamente',
-    importError: 'Error al importar configuraciones: formato inválido',
     changesDiscarded: 'Cambios descartados'
   },
   activity: {
     product: {
-      added: 'Producto "{name}" agregado.',
-      updated: 'Producto "{name}" actualizado.',
-      deleted: 'Producto "{name}" eliminado.'
+      added: 'Nuevo producto agregado: {productName}',
+      updated: 'Producto actualizado: {productName}',
+      deleted: 'Producto eliminado: {productName}'
     },
     order: {
+      created: 'Nuevo pedido de tipo {orderType} creado para {customerName}',
+      statusChanged: 'El estado del pedido {orderId} cambió a {status}',
       inbound: 'Pedido de entrada con {count} productos creado.',
       outbound: 'Pedido de salida con {count} productos creado.',
-      updated: 'Pedido #{id} actualizado.',
-      deleted: 'Pedido #{id} eliminado.'
+      updated: 'Pedido {id} actualizado.',
+      deleted: 'Pedido {id} eliminado.'
     },
     supplier: {
-      added: 'Proveedor "{name}" agregado.',
-      updated: 'Proveedor "{name}" actualizado.',
-      deleted: 'Proveedor "{name}" eliminado.'
+      added: 'Nuevo proveedor agregado: {supplierName}'
     },
     stock: {
-      created: 'Inventario creado para "{name}".',
-      updated: 'Stock de "{name}" actualizado.'
+      increased: 'Stock aumentado en {quantity} para {productName} ({from} → {to})',
+      decreased: 'Stock disminuido en {quantity} para {productName} ({from} → {to})',
+      updated: 'Stock de {productName} actualizado.'
     },
     alert: {
       lowStock: '⚠️ Stock bajo para {productName}',
-      outOfStock: '❌ {productName} se ha quedado sin stock'
+      outOfStock: '❌ {productName} está sin stock'
     }
   },
   time: {
